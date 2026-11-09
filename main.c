@@ -5,7 +5,16 @@
 #include <sys/types.h>
 
 #define TABLE_SIZE 13
-char *hash_table[TABLE_SIZE];
+
+struct entry {
+  char *key;
+  char *value;
+  struct entry *next;
+};
+
+typedef struct entry entry;
+
+entry *hash_table[TABLE_SIZE];
 
 unsigned long hash_function(const char *string) {
   unsigned long hash = 5381;
@@ -30,21 +39,21 @@ void print_table() {
     if (hash_table[i] == NULL) {
       printf("\t%d\t----\n", i);
     } else {
-      printf("\t%d\t%s\n", i, hash_table[i]);
+      printf("\t%d\t%s\n", i, hash_table[i]->value);
     }
   }
   printf("End\n");
 }
 
-bool add_to_table(char *name) {
-  if (name == NULL) {
+bool add_to_table(entry *p) {
+  if (p == NULL) {
     return false;
   }
-  int index = hash_function(name);
+  int index = hash_function(p);
   if (hash_table[index] != NULL) {
     return false;
   }
-  hash_table[index] = name;
+  hash_table[index] = p;
   return true;
 }
 

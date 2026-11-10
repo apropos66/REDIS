@@ -102,6 +102,47 @@ char *get(const char *key) {
   return NULL;
 }
 
+void free_table(void) {
+  for (size_t i = 0; i < TABLE_SIZE; i++) {
+    entry *p = hash_table[i];
+    while (p != NULL) {
+      entry *next = p->next;
+      free(p->key);
+      free(p->value);
+      free(p);
+      p = next;
+    }
+    hash_table[i] = NULL;
+  }
+}
+
+bool del(const char *key) {
+  if (key == NULL) {
+    return false;
+  }
+  size_t index = hash_function(key);
+
+  entry *prev = NULL;
+  entry *curr = hash_table[index];
+
+  while (curr != NULL) {
+    if (strcmp(curr->key, key) == 0) {
+      if (prev == NULL) {
+        hash_table[index] = curr->next;
+      } else {
+        prev->next = curr->next;
+      }
+      free(curr->key);
+      free(curr->value);
+      free(curr);
+      return true;
+    }
+    prev = curr;
+    curr = curr->next;
+  }
+  return false;
+}
+
 int main() {
   init_hash_table();
   set("name", "Ali");

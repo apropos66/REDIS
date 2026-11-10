@@ -1,7 +1,10 @@
 
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 
 #define TABLE_SIZE 13
@@ -39,29 +42,71 @@ void print_table() {
     if (hash_table[i] == NULL) {
       printf("\t%d\t----\n", i);
     } else {
-      printf("\t%d\t%s\n", i, hash_table[i]->value);
+      entry *p = hash_table[i];
+      while (p != NULL) {
+        printf("\t%d\t%s\n", i, p->value);
+        p = p->next;
+      }
     }
   }
   printf("End\n");
 }
 
-bool add_to_table(entry *p) {
-  if (p == NULL) {
+bool set(char *key, char *value) {
+  if (key == NULL || value == NULL) {
     return false;
   }
-  int index = hash_function(p);
-  if (hash_table[index] != NULL) {
+  size_t index = hash_function(key);
+  // replacing the value if next call sends the same key
+  for (entry *p = hash_table[index]; p != NULL; p = p->next) {
+    if (strcmp(p->key, key) == 0) {
+      char *new_value = strdup(value);
+      if (new_value == NULL) {
+        return false;
+      }
+      free(p->value);
+      p->value = new_value;
+      return true;
+    }
+  }
+  entry *e = malloc(sizeof(entry));
+  if (e == NULL) {
+    return false;
+  };
+  e->key = strdup(key);
+  e->value = strdup(value);
+  if (e->key == NULL || e->value == NULL) {
+    free(e->key);
+    free(e->value);
+    free(e);
     return false;
   }
-  hash_table[index] = p;
+
+  e->next = hash_table[index];
+  hash_table[index] = e;
   return true;
 }
 
+char *get(const char *key) {
+  size_t index = hash_function(key);
+  entry *p = hash_table[index];
+  if (p == NULL) {
+    return NULL;
+  }
+  while (p != NULL) {
+    if (strcmp(key, p->key) == 0) {
+      return p->value;
+    }
+    p = p->next;
+  }
+  return NULL;
+}
+
 int main() {
-  char *s = "ball";
   init_hash_table();
+  set("name", "Ali");
+  set("name", "Aadi");
   print_table();
-  add_to_table(s);
-  print_table();
+  printf("%s\n", get("name"));
   return 0;
 }

@@ -1,5 +1,7 @@
 
-main.o 
+/build
 main 
+*.o 
+*.out
 parse 
-store.o
+store

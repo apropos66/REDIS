@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define TABLE_SIZE 13
+#define TABLE_SIZE 516
 
 struct entry {
   char *key;

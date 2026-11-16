@@ -1,15 +1,24 @@
-main: main.o store.o 
-	gcc main.o store.o -o main
+CC     = gcc
+CFLAGS = -Wall -Wextra -Wpedantic
 
-main.o: main.c store.c 
-	gcc -c main.c -o main.o
+OBJS = main.o parse.o store.o
 
-store.o: main.c store.c 
-	gcc -c store.c -o store.o
+main: $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o main
+
+main.o: main.c parse.h
+	$(CC) $(CFLAGS) -c main.c -o main.o
+
+parse.o: parse.c parse.h store.h
+	$(CC) $(CFLAGS) -c parse.c -o parse.o
+
+store.o: store.c store.h
+	$(CC) $(CFLAGS) -c store.c -o store.o
 
 run: main
 	./main
 
 clean:
-	rm -f main
-	rm -f *.o
+	rm -f main *.o
+
+.PHONY: run clean
